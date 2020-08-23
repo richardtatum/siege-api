@@ -1,8 +1,14 @@
+# Visual Studio
 .vs/
+
+# API settings
 api/appsettings.json
 
-api/bin
-api.tests/bin
+# Resharper
+api.sln.DotSettings.user
 
+# Bin/Obj
+api/bin
 api/obj
+api.tests/bin
 api.tests/obj
