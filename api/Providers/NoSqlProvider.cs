@@ -18,8 +18,6 @@ namespace api.Providers
     {
         private readonly AmazonDynamoDBClient _client;
         private readonly AwsConfig _config;
-        private readonly PutItemOperationConfig _putConfig;
-        private readonly DeleteItemOperationConfig _deleteConfig;
         private const string TableName = "ubisoft";
 
         public NoSqlProvider(IOptions<AwsConfig> config)
