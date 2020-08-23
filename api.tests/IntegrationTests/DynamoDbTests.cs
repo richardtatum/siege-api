@@ -60,14 +60,12 @@ namespace api.tests.IntegrationTests
             await provider.UpsertItemAsync(ticket, CancellationToken.None);
 
             // Act
-            var result = await provider.GetItemAsync(ticket.Id, CancellationToken.None);
+            var result = await provider.GetItemAsync<Ticket>(ticket.Id, CancellationToken.None);
 
             // Assert
             Assert.NotNull(result);
-            Assert.Equal(3, result.Keys.Count);
-            Assert.Equal(3, result.Values.Count);
-            Assert.NotNull(result.Keys.FirstOrDefault());
-            Assert.NotNull(result.Values.FirstOrDefault());
+            Assert.NotEqual(string.Empty, result.Value.Replace("Ubi_v1 t=", ""));
+            Assert.True(result.Valid);
 
             // Cleanup
             await provider.DeleteItemAsync(ticket.Id, CancellationToken.None);
