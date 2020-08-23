@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using Amazon;
@@ -50,13 +51,19 @@ namespace api.Providers
             await _client.CreateTableAsync(table, token);
         }
 
-        public async Task<Document> GetItemAsync(string id)
+        public async Task<T> GetItemAsync<T>(string id, CancellationToken token) where T : class
         {
             if (!Table.TryLoadTable(_client, TableName, out var table ))
                 return null;
 
-            var response = await table.GetItemAsync(id);
-            return response;
+            var response = await table.GetItemAsync(id, token);
+
+            if (response == null) return null;
+
+            var item = JsonSerializer.Deserialize<T>(response.ToJson(),
+                new JsonSerializerOptions{PropertyNameCaseInsensitive = true});
+
+            return item;
         }
 
         public async Task<bool> DeleteItemAsync(string id, CancellationToken token)
@@ -75,7 +82,7 @@ namespace api.Providers
             return response != null;
         }
 
-        public async Task<bool> UpsertItemAsync<T>(T item, CancellationToken token)
+        public async Task<bool> UpsertItemAsync<T>(T item, CancellationToken token) where T : class
         {
             await EnsureProvisionedAsync(token);
 

@@ -7,8 +7,8 @@ namespace api.Interfaces
 {
     public interface INoSqlProvider
     {
-        Task<Document> GetItemAsync(string id, CancellationToken token);
+        Task<T> GetItemAsync<T>(string id, CancellationToken token) where T : class;
         Task<bool> DeleteItemAsync(string id, CancellationToken token);
-        Task<bool> UpsertItemAsync<T>(T item, CancellationToken token);
+        Task<bool> UpsertItemAsync<T>(T item, CancellationToken token) where T : class;
     }
 }
