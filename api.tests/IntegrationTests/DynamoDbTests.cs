@@ -18,9 +18,9 @@ namespace api.tests.IntegrationTests
             _config = new Mock<IOptions<AwsConfig>>();
             _config.Setup(m => m.Value).Returns(new AwsConfig
             {
-                AccessKey = "AKIAR7NVIYZ2J2HCRDLB",
-                SecretKey = "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",
-                Region = "eu-west-1"
+                AccessKey = "",
+                SecretKey = "",
+                Region = ""
             });
 
         }
