@@ -43,7 +43,7 @@ namespace api.tests.IntegrationTests
             Assert.True(result);
 
             // Cleanup
-
+            await provider.DeleteItemAsync(ticket.Id, CancellationToken.None);
         }
     }
 }
