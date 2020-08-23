@@ -1,2 +1,8 @@
 .vs/
 api/appsettings.json
+
+api/bin
+api.tests/bin
+
+api/obj
+api.tests/obj
