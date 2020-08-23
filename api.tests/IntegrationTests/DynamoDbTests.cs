@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using api.Models;
 using api.Providers;
@@ -41,6 +42,32 @@ namespace api.tests.IntegrationTests
 
             // Assert
             Assert.True(result);
+
+            // Cleanup
+            await provider.DeleteItemAsync(ticket.Id, CancellationToken.None);
+        }
+
+        [Fact]
+        public async void GetTicket()
+        {
+            // Arrange
+            var provider = new NoSqlProvider(_config.Object);
+            var ticket = new TestTicket
+            {
+                Created = DateTime.Now,
+                Value = "test2"
+            };
+            await provider.UpsertItemAsync(ticket, CancellationToken.None);
+
+            // Act
+            var result = await provider.GetItemAsync(ticket.Id, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(3, result.Keys.Count);
+            Assert.Equal(3, result.Values.Count);
+            Assert.NotNull(result.Keys.FirstOrDefault());
+            Assert.NotNull(result.Values.FirstOrDefault());
 
             // Cleanup
             await provider.DeleteItemAsync(ticket.Id, CancellationToken.None);
