@@ -4,9 +4,8 @@ namespace api.Models
 {
     public class Ticket
     {
-        public Guid Id { get; set; }
+        public virtual string Id => "ticket";
         private string _value { get; set; }
-
         public string Value
         {
             get => _value;
