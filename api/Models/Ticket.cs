@@ -12,6 +12,7 @@ namespace api.Models
             set => _value = $"Ubi_v1 t={value}";
         }
         public DateTime Created { get; set; }
-        public bool Valid => Created < DateTime.Now - TimeSpan.FromHours(2);
+        // Check if ticket was created less than 3 hours ago
+        public bool Valid => Created > DateTime.Now.AddHours(-3);
     }
 }
