@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
@@ -75,24 +76,24 @@ namespace api.Providers
             return true;
         }
 
-        public async Task<Document> PutItemAsync(Ticket ticket, CancellationToken token)
+        public async Task<bool> UpsertItemAsync(Ticket ticket, CancellationToken token)
         {
             await EnsureProvisionedAsync(token);
 
             if (!Table.TryLoadTable(_client, TableName, out var table))
-                return null;
+                return false;
 
             var attributes = new Dictionary<string, AttributeValue>
             {
                 {"id", new AttributeValue(ticket.Id.ToString())},
                 {"value", new AttributeValue(ticket.Value)},
-                {"created", new AttributeValue(ticket.Created.ToString())}
+                {"created", new AttributeValue(ticket.Created.ToString(CultureInfo.InvariantCulture))}
             };
 
             var item = Document.FromAttributeMap(attributes);
 
             var response = await table.PutItemAsync(item, _putConfig , token);
-            return response;
+            return response != null;
         } 
     }
 }
