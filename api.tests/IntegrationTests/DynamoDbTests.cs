@@ -25,22 +25,25 @@ namespace api.tests.IntegrationTests
         }
 
         [Fact]
-        public async void Insert()
+        public async void UpsertTicket()
         {
             // Arrange
             var provider = new NoSqlProvider(_config.Object);
-            var ticket = new Ticket
+
+            var ticket = new TestTicket
             {
-                Id = Guid.NewGuid(),
                 Created = DateTime.Now,
-                Value = "test"
+                Value = "test2"
             };
 
             // Act
-            var x = await provider.PutItemAsync(ticket, CancellationToken.None);
+            var result = await provider.UpsertItemAsync(ticket, CancellationToken.None);
 
             // Assert
-            Assert.NotNull(x);
+            Assert.True(result);
+
+            // Cleanup
+
         }
     }
 }
