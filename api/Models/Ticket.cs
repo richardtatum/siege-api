@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.Json.Serialization;
 
 namespace api.Models
 {
@@ -13,6 +14,7 @@ namespace api.Models
         }
         public DateTime Created { get; set; }
         // Check if ticket was created less than 3 hours ago
+        [JsonIgnore]
         public bool Valid => Created > DateTime.Now.AddHours(-3);
     }
 }
