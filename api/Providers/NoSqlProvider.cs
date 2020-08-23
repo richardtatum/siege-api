@@ -19,6 +19,7 @@ namespace api.Providers
         private readonly AmazonDynamoDBClient _client;
         private readonly AwsConfig _config;
         private readonly PutItemOperationConfig _putConfig;
+        private readonly DeleteItemOperationConfig _deleteConfig;
         private const string TableName = "ubisoft";
 
         public NoSqlProvider(IOptions<AwsConfig> config)
@@ -26,11 +27,6 @@ namespace api.Providers
             _config = config.Value;
             var credentials = new BasicAWSCredentials(_config.AccessKey, _config.SecretKey);
             _client = new AmazonDynamoDBClient(credentials, RegionEndpoint.EUWest1);
-
-            _putConfig = new PutItemOperationConfig
-            {
-                ReturnValues = ReturnValues.AllOldAttributes
-            };
         }
 
         public async Task EnsureProvisionedAsync(CancellationToken token)
@@ -70,10 +66,15 @@ namespace api.Providers
             if (!Table.TryLoadTable(_client, TableName, out var table))
                 return false;
 
-            var document = new Primitive(id, false);
+            var primitive = new Primitive(id, false);
 
-            var response = await table.DeleteItemAsync(document, token);
-            return true;
+            var config = new DeleteItemOperationConfig
+            {
+                ReturnValues = ReturnValues.AllOldAttributes
+            };
+
+            var response = await table.DeleteItemAsync(primitive, config, token);
+            return response != null;
         }
 
         public async Task<bool> UpsertItemAsync(Ticket ticket, CancellationToken token)
@@ -92,7 +93,12 @@ namespace api.Providers
 
             var item = Document.FromAttributeMap(attributes);
 
-            var response = await table.PutItemAsync(item, _putConfig , token);
+            var config = new PutItemOperationConfig
+            {
+                ReturnValues = ReturnValues.AllOldAttributes
+            };
+
+            var response = await table.PutItemAsync(item, config , token);
             return response != null;
         } 
     }
