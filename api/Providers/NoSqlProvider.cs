@@ -28,7 +28,7 @@ namespace api.Providers
 
             _putConfig = new PutItemOperationConfig
             {
-                ReturnValues = ReturnValues.UpdatedNewAttributes
+                ReturnValues = ReturnValues.AllOldAttributes
             };
         }
 
@@ -43,12 +43,16 @@ namespace api.Providers
             {
                 // TODO: Log
             }
-            // Default table information for the Ubisoft key table
-            var schema = new List<KeySchemaElement> { new KeySchemaElement("id", KeyType.HASH) };
-            var attributes = new List<AttributeDefinition> { new AttributeDefinition("id", ScalarAttributeType.S) };
-            var throughput = new ProvisionedThroughput(5, 5);
 
-            await _client.CreateTableAsync(TableName, schema, attributes, throughput, token);
+            // Default table information for the Ubisoft key table
+            var table = new CreateTableRequest(
+                TableName,
+                new List<KeySchemaElement> { new KeySchemaElement("id", KeyType.HASH) },
+                new List<AttributeDefinition> { new AttributeDefinition("id", ScalarAttributeType.S) },
+                new ProvisionedThroughput(5, 5)
+                );
+
+            await _client.CreateTableAsync(table, token);
         }
 
         public async Task<Document> GetItemAsync(string id)
