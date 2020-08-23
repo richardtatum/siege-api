@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Globalization;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using Amazon;
@@ -9,12 +7,13 @@ using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.DynamoDBv2.Model;
 using Amazon.Runtime;
+using api.Interfaces;
 using api.Models;
 using Microsoft.Extensions.Options;
 
 namespace api.Providers
 {
-    public class NoSqlProvider
+    public class NoSqlProvider : INoSqlProvider
     {
         private readonly AmazonDynamoDBClient _client;
         private readonly AwsConfig _config;
@@ -27,8 +26,9 @@ namespace api.Providers
             _client = new AmazonDynamoDBClient(credentials, RegionEndpoint.EUWest1);
         }
 
-        public async Task EnsureProvisionedAsync(CancellationToken token)
+        private async Task EnsureProvisionedAsync(CancellationToken token)
         {
+            // This currently still passes the Exception, even though its caught
             try
             {
                 await _client.DescribeTableAsync(TableName, token);
@@ -75,28 +75,26 @@ namespace api.Providers
             return response != null;
         }
 
-        public async Task<bool> UpsertItemAsync(Ticket ticket, CancellationToken token)
+        public async Task<bool> UpsertItemAsync<T>(T item, CancellationToken token)
         {
             await EnsureProvisionedAsync(token);
 
             if (!Table.TryLoadTable(_client, TableName, out var table))
                 return false;
 
-            var attributes = new Dictionary<string, AttributeValue>
+            var json = JsonSerializer.Serialize(item, new JsonSerializerOptions
             {
-                {"id", new AttributeValue(ticket.Id.ToString())},
-                {"value", new AttributeValue(ticket.Value)},
-                {"created", new AttributeValue(ticket.Created.ToString(CultureInfo.InvariantCulture))}
-            };
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
 
-            var item = Document.FromAttributeMap(attributes);
+            var document = Document.FromJson(json);
 
             var config = new PutItemOperationConfig
             {
                 ReturnValues = ReturnValues.AllOldAttributes
             };
 
-            var response = await table.PutItemAsync(item, config , token);
+            var response = await table.PutItemAsync(document, config , token);
             return response != null;
         } 
     }
