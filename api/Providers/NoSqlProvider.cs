@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Net.Http;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
@@ -29,26 +31,26 @@ namespace api.Providers
 
         private async Task EnsureProvisionedAsync(CancellationToken token)
         {
-            // This currently still passes the Exception, even though its caught
             try
             {
                 await _client.DescribeTableAsync(TableName, token);
-                return;
             }
-            catch (ResourceNotFoundException e)
+            catch (ResourceNotFoundException)
             {
                 // TODO: Log
-            }
 
-            // Default table information for the Ubisoft key table
-            var table = new CreateTableRequest(
-                TableName,
-                new List<KeySchemaElement> { new KeySchemaElement("id", KeyType.HASH) },
-                new List<AttributeDefinition> { new AttributeDefinition("id", ScalarAttributeType.S) },
-                new ProvisionedThroughput(5, 5)
+                // Default table information for the Ubisoft key table
+                var table = new CreateTableRequest(
+                    TableName,
+                    new List<KeySchemaElement> { new KeySchemaElement("id", KeyType.HASH) },
+                    new List<AttributeDefinition> { new AttributeDefinition("id", ScalarAttributeType.S) },
+                    new ProvisionedThroughput(5, 5)
                 );
+                await _client.CreateTableAsync(table, token);
 
-            await _client.CreateTableAsync(table, token);
+                // Wait for the table to finish being created
+                await Task.Delay(5000, token);
+            }
         }
 
         public async Task<T> GetItemAsync<T>(string id, CancellationToken token) where T : class
