@@ -15,11 +15,12 @@ namespace api.Models.Ubisoft
     public class UbisoftConfig
     {
         public string AppId { get; set; }
+        public string Username { get; set; }
+        public string Password { get; set; }
 
         // URLS
         public string BaseUrl { get; set; }
         public string ChallengeUrl { get; set; }
-        //public string UserUrl => $"{BaseUrl}/v2/profiles?";
         public string PlatformUrl(string platform)
         {
             return $"v1/spaces/{Platforms.Urls[platform]}/";
